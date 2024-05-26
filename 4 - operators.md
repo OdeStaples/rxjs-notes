@@ -122,7 +122,48 @@ example$.subscribe(function generateSequence(value) {
 
 - and since the `takeWhile` condtion becomes false for the first fibonacci value, so no value is printed.
 
-# takeUntil and #skipUntil
+# takeUntil
+
+- The `takeUntil` operator in RxJS allows you to specify a condition under which an observable sequence stops emitting items. Essentially, it completes the observable sequence when a notifier observable emits its first item. This is particularly useful for unsubscribing from observables based on certain events, such as the destruction of a component in Angular applications.
+
+  ```ts
+  import { Subject } from "rxjs";
+  import { takeUntil } from "rxjs/operators";
+
+  class MyComponent {
+    private destroy$ = new Subject<void>();
+
+    constructor(private myService: MyService) {
+      this.myService
+        .getDataStream()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((data) => console.log(data));
+    }
+
+    ngOnDestroy() {
+      this.destroy$.next();
+      this.destroy$.complete();
+    }
+  }
+  ```
+
+- In this example, `getDataStream()` returns an observable that emits data. The `takeUntil` operator is used with a `Subject` (`destroy$`) that emits a value when the component is destroyed (`ngOnDestroy`). This effectively unsubscribes from `getDataStream()` when the component is no longer needed, preventing memory leaks.
+
+# skipUntil
+
+- The `skipUntil` operator is similar to `takeUntil` but instead of completing the observable sequence upon the first emission of the notifier observable, it ignores all items from the source observable until the notifier emits. After the notifier emits, skipUntil starts forwarding items from the source observable.
+
+  ```ts
+  import { fromEvent } from "rxjs";
+  import { skipUntil } from "rxjs/operators";
+
+  const clicks = fromEvent(document, "click");
+  const result = clicks.pipe(skipUntil(fromEvent(document, "dblclick")));
+
+  result.subscribe((x) => console.log(x));
+  ```
+
+- In this example, `clicks` is an observable of click events. The `skipUntil` operator is used with another observable that emits when a double-click event occurs. Until a double-click happens, all click events are ignored. Once a double-click is detected, subsequent click events are logged to the console.
 
 # filter
 
