@@ -69,6 +69,14 @@ example$.subscribe({
 
 - we usually need the value most of the times - hence using first method will work.
 
+# Subscribe
+
+-In RxJS, `subscribe()` is a method used to attach an observer to an observable. This allows the observer to listen for and react to events emitted by the observable. The `subscribe()` method takes up to three arguments: `next`, `error`, and `complete`. These are callback functions that handle different types of notifications from the observable:
+
+- `next`: A function that handles the emission of a new value from the observable.
+- `error`: A function that handles errors thrown by the observable.
+- `complete`: A function that handles the completion notification from the observable, indicating that it has finished emitting values.
+
 # Handling Async Data
 
 ```ts
