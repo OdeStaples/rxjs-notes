@@ -173,7 +173,3 @@ const data$ = fromFetch("api/endpoint");
 ```
 
 - acts like promise but has additional option of aborting request etc.
-
-# interval
-
-- creates an observable that emits an event every 'n' millisecond
