@@ -362,6 +362,12 @@ The `tap` operator is versatile and can be used in various scenarios where you n
 
 - `delay` isn't necessarily spacing them out. If we rage click, they all come in roughly the same time, just two seconds in the future.
 
+# toArray
+
+- Collects all source emissions and emits them as an array when the source completes.
+
+- `toArray` will wait until the source Observable completes before emitting the array containing all emissions. When the source Observable errors no array will be emitted
+
 # throttleTime
 
 - `throttleTime`
