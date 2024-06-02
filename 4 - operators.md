@@ -366,18 +366,59 @@ The `tap` operator is versatile and can be used in various scenarios where you n
 
 - Collects all source emissions and emits them as an array when the source completes.
 
-- `toArray` will wait until the source Observable completes before emitting the array containing all emissions. When the source Observable errors no array will be emitted
+- `toArray` will wait until the source Observable completes before emitting the array containing all emissions. When the source Observable errors no array will be emitted.
+
+```js
+import { of, toArray } from "rxjs";
+
+const source$ = of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+
+source$.pipe(toArray()).subscribe((data) => console.log(data)); // [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+```
+
+# mergeMap
+
+- The `mergeMap` operator in RxJS is a transformation operator that is used to map each value emitted by an observable into another observable, and then merge the output of these resulting observables into a single observable stream.
+
+- Here’s a high-level overview of how mergeMap works:
+
+  - **Mapping**: For each value emitted by the source observable, mergeMap applies a projection function you provide.
+
+  - **Merging**: It then merges the observables returned by the projection function into one output observable.
+
+  - **Concurrency**: By default, mergeMap subscribes to all inner observables immediately. However, you can limit the number of concurrent subscriptions using the concurrent parameter.
+
+- Key Characteristics:
+
+  - **Flat Mapping**: It’s often referred to as a “flatMap” because it flattens multiple observables into one.
+
+  - **Order**: The order of emissions is not guaranteed to be preserved, as it emits values as soon as they are available from the inner observables.
+
+  - **Use Cases**: It’s useful when you have tasks that can run in parallel and when the order of results doesn’t matter.
+
+  - **Caution**: Since mergeMap can handle multiple active inner subscriptions at once, it’s possible to create a memory leak if the inner observables are long-lived or infinite.
+
+  ```js
+  import { of, mergeMap, interval, map } from "rxjs";
+
+  const letters = of("a", "b", "c");
+  const result = letters.pipe(
+    mergeMap((letter) => interval(1000).pipe(map((i) => letter + i)))
+  );
+
+  result.subscribe((value) => console.log(value)); // a0, b0, c0, a1, b1, c1, ...
+  ```
+
+  - In this example, `mergeMap` takes each letter from the letters observable and maps it to an interval observable that emits a number every second. It then concatenates the letter with the number and emits the result. The output would be a continuous stream of values like ‘a0’, ‘b0’, ‘c0’, ‘a1’, ‘b1’, ‘c1’, and so on.
 
 # throttleTime
 
-- `throttleTime`
-
-  ```js
-  const buttonClicks$ = fromEvent(button, "click").pipe(
-    throttleTime(2000)
-    // delay(2000)
-  );
-  ```
+```js
+const buttonClicks$ = fromEvent(button, "click").pipe(
+  throttleTime(2000)
+  // delay(2000)
+);
+```
 
 - You can keep clicking, but a new message will only show up every two seconds provided you keep on clicking the button.
 
@@ -392,3 +433,7 @@ The `tap` operator is versatile and can be used in various scenarios where you n
   ```
 
 - in the above example, the repeated clicks till the las click will be ignored, then after the final(last) click is done, after a 1sec delay the logic will be invoked.
+
+```
+
+```
