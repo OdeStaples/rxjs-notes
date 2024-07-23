@@ -185,6 +185,21 @@ example$.subscribe(function generateSequence(value) {
   mapExample$.subscribe((val) => console.log(val)); // logs 2,4,6
   ```
 
+# pluck
+
+- Like map, but meant only for picking one of the nested properties of every emitted value.
+
+  ```ts
+  import { fromEvent, pluck } from "rxjs";
+
+  const clicks = fromEvent(document, "click");
+  const tagNames = clicks.pipe(pluck("target", "tagName"));
+
+  tagNames.subscribe((x) => console.log(x));
+  ```
+
+  ![pluck-operator](https://rxjs.dev/assets/images/marble-diagrams/pluck.png)
+
 # mapTo
 
 - this is just a simplified version of map
