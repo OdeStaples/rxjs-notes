@@ -83,9 +83,12 @@
 
 - take or skip values as long a certain condition is met. Complete the observable when the conditon returns false.
 
+- takeWhile also has a second argument (boolean) that emits the value which completes the observable. By default it is `false`
+
   ```ts
   const under200$ = from(fibonacci()).pipe(takeWhile(value)=>value<200);
-  under200$.subscribe((val)=>console.log(val)); // logs 0,1,2,3,5,8,13,21,34,55,89
+  under200$.subscribe((val)=>console.log(val)); // logs 0,1,2,3,5,8,13,21,34,55,89,144
+  under200$.subscribe((val)=>console.log(val), true); // logs 0,1,2,3,5,8,13,21,34,55,89,144,233
 
   const over100$ = from(fibonacci()).pipe(skipWhile(value)=>value<100);
   over100$.subscribe((val)=>console.log(val)); // logs 144, 233, 377, 610
@@ -490,4 +493,63 @@ const buttonClicks$ = fromEvent(button, "click").pipe(
   winnerObservable.subscribe((value) => {
     console.log(value); // Output: Will likely be 0 or 1 (from observable1 or observable2)
   });
+  ```
+
+# distinctUntilChanged and distinctUntilKeyChanged
+
+- Only emit when the current value is different than the last.
+
+- distinctUntilChanged uses `===` comparison by default, object references must match. If you want to compare based on an object property, you can use distinctUntilKeyChanged instead.
+
+- if the types dont't match (comparing 1 with '1'), both values will be emitted since they are differnt
+
+  ```js
+  import { distinctUntilChanged } from "rxjs";
+
+  const source$ = of(1, "1", 2, 2, 3, 3, 3, 4, 5, 3);
+  source$.pipe(distinctUntilChanged()).subscibe((val) => console.log); // 1 1 2 3 4 5 3
+  ```
+
+- in the above example, the string 1 is different than the previous emission (numeric 1) hence it is emitted. And 3 is different than 5 (previous emission wrt to 3) hence 3 is also printed.
+
+  ```js
+  import { scan, distinctUntilChanged, from } from "rxjs";
+
+  const users = [
+    { name: "Brian", loggedIn: false, token: null },
+    { name: "Brian", loggedIn: true, token: "abc" },
+    { name: "Brian", loggedIn: true, token: "xyz" },
+  ];
+
+  const usersList$ = from(users);
+
+  usersList$
+    .pipe(
+      scan((acc, nxt) => {
+        return { ...acc, ...nxt };
+      }, {}),
+      distinctUntilChanged((prev, curr) => prev.name === curr.name)
+    )
+    .subscribe((val) => console.log(val)); // { name: "Brian", loggedIn: false, token: null }
+  ```
+
+  ```js
+  import { scan, distinctUntilKeyChanged, from } from "rxjs";
+
+  const users = [
+    { name: "Brian", loggedIn: false, token: null },
+    { name: "Brian", loggedIn: true, token: "abc" },
+    { name: "Brian", loggedIn: true, token: "xyz" },
+  ];
+
+  const usersList$ = from(users);
+
+  usersList$
+    .pipe(
+      scan((acc, nxt) => {
+        return { ...acc, ...nxt };
+      }, {}),
+      distinctUntilKeyChanged("name")
+    )
+    .subscribe((val) => console.log(val)); // { name: "Brian", loggedIn: false, token: null }
   ```
