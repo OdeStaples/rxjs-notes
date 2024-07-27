@@ -401,9 +401,12 @@ const buttonClicks$ = fromEvent(button, "click").pipe(
   throttleTime(2000)
   // delay(2000)
 );
+buttonClicks$.subscribe(console.log);
 ```
 
-- You can keep clicking, but a new message will only show up every two seconds provided you keep on clicking the button.
+- You can keep clicking, but a new message will only show up every two seconds provided you keep on clicking the button
+
+- in the above example, the click will be registered on the first click and after ever 2secs another click will be registered.
 
 # debounceTime
 
@@ -416,6 +419,8 @@ const buttonClicks$ = fromEvent(button, "click").pipe(
   ```
 
 - in the above example, the repeated clicks till the las click will be ignored, then after the final(last) click is done, after a 1sec delay the logic will be invoked.
+
+![debouneTime v throttleTime](image.png)
 
 # throttle and debounce
 
