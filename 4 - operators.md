@@ -426,6 +426,57 @@ buttonClicks$.subscribe(console.log);
 
 - These operators work just like `throttleTime` and `debounceTime` but instead of relying on the given amount of time, they rely on the dependant observables until they emit a value.
 
+# sampleTime and sample
+
+- sampleTime allows you to take a sample of source observable on a duration that you define.
+
+  ```js
+  import { fromEvent, map, sampleTime } from "rxjs";
+
+  const clicks = fromEvent(document, "click");
+  const result = clicks.pipe(
+    sampleTime(4000),
+    map(({ clientX, clientY }) => {
+      return { clientX, clientY };
+    })
+  );
+
+  result.subscribe(console.log);
+  ```
+
+- in the above example, every 4 seconds, we’ll sample the latest click event that occurred during that time window.
+
+- if you need to sample a latest value based on another observable, you can use sample
+
+  ```js
+  import { fromEvent, sampleTime, interval } from "rxjs";
+
+  const click$ = fromEvent(document, "click");
+  const timer$ = interval(1000);
+
+  timer$.pipe(sample(click$)).subscribe(console.log);
+  ```
+
+![Sample-Time-Digram](image-1.png)
+
+![sampleTime vs throttleTime vs debounceTime](image-2.png)
+
+# auditTime
+
+- `auditTime` ignores source values for the duration you specify after an emitted value. After the window is passed, the last emitted value from the source observable is emitted.
+
+- `auditTime` differs from `sampleTime` as a silence window is triggered by the emitted values from the source rather than repeated after subscription.
+
+- `auditTime` differs from `throttleTime` as auditTime emits values at the trailing edge of the silence window as opposed to the leading edge.
+
+- if you want to uniformly sample the source ever so often, then you `sampleTime`, if you want to instead sample a source for duration only after some event, then use `auditTime`
+
+- you can achieve the behaviour identical to auditTime with throttleTime by providing a asyncScheduler config ({leading: false, trailing: true})
+
+![Audit-Time-Diagram](image-3.png)
+
+![Comparision](image-4.png)
+
 # merge
 
 - The merge operator in RxJS is used to combine multiple Observables into a single Observable. It allows you to handle emissions (data) from those Observables concurrently, creating a unified stream of values.
