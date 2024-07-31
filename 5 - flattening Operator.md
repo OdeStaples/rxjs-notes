@@ -150,3 +150,103 @@
 - Useful for http requests you don't want cancelled, such as POSTs or inner observables whose lifetime you'll manage using `take` or `takeUntil`. Remember to clean up inner observables to prevent memory leaks and unintended consequences.
 
 - ![Merge-Map-Diagram](image-6.png)
+
+# switchMap
+
+- the `switchMap` operator maps each value to an observable and then flattens that observable. unlike `mergeMap`, `switchMap` maintains one active inner subscription at a time, so anytime we map to a new inner observable, the previous one is completed.
+
+  ```html
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+    </head>
+    <body>
+      <input type="text" placeholder="type here" id="text-input" /> <br />
+      <div class="container" style="color: white"></div>
+      <script src="./script.js"></script>
+    </body>
+  </html>
+  ```
+
+  ```js
+  import {
+    fromEvent,
+    switchMap,
+    debounceTime,
+    pluck,
+    distinctUntilChanged,
+  } from "rxjs";
+  import { ajax } from "rxjs/ajax";
+
+  const URL = "https://api.openbrewerydb.org/breweries/";
+  const container = document.querySelector(".container");
+  const inputBox = document.querySelector("#text-input");
+
+  const source$ = fromEvent(inputBox, "keyup");
+
+  source$
+    .pipe(
+      debounceTime(200),
+      pluck("target", "value"),
+      distinctUntilChanged(),
+      switchMap((term) => ajax.getJSON(`${URL}?by_name=${term}`))
+    )
+    .subscribe(
+      (res) => (container.innerHTML = res.map((b) => b.name).join("<br>"))
+    );
+  ```
+
+![Switch-Map-Diagram](image-7.png)
+
+- in summary, `switchMap` swithces to a new observable on emissions from source, cancelling any previous active inner observables.
+
+- safest default for flattening, hard to create leaks like `mergeMap`
+
+- useful for http requests that can be cancelled (GET requests), great for reset, pause and resume functionality.
+
+- avoid `switchMap` when cancellation could have undesired effects such as saves (POST)
+
+# concatMap
+
+- `concatMap` operator acts similarly as `switchMap` and `mergeMap`, maps a value to an observable, flattening the result.
+
+- what makes `concatMap` unique is instead of subscribing to inner observables as they arrive like `mergeMap` or switching to a new observable on each emission like `switchMap`, `concatMap` instead queues all inner observables until the previous one completes.
+
+- `concatMap` can be used in situations where you need to maintain the order of execution and your inner observable have finite lifespans.
+
+![Concat-Map-Diagram-1](image-8.png)
+
+- the issue in the above diagram example is that, since the first inner interval never completes, no other inner observable will ever be activated.
+
+![Concat-Map-Diagram-2](image-9.png)
+
+```js
+import { fromEvent, interval, concatMap } from "rxjs";
+
+const interval$ = interval(1000);
+const source$ = fromEvent(document, "click");
+
+source$.subscribe(concatMap(interval$)).subscribe(console.log);
+```
+
+- the issue with the above example is that since the inner interval never completes, no other inner observable will ever be activated and will be queued up.
+
+  ```js
+  import { fromEvent, interval, concatMap, take } from "rxjs";
+
+  const interval$ = interval(1000);
+  const source$ = fromEvent(document, "click");
+
+  source$.subscribe(concatMap(interval$.pipe(take(3)))).subscribe(console.log);
+  ```
+
+- `take` completes the inner interval after 3 emissions, so depending on the number of clicks, the intervals will be queued up awaiting the previous one to complete.
+
+- uses case would be when you would want to maintain an order of request on the client rather than server
+
+- to sum it up, `concatMap` maintains one active inner subscription, activates the next observable when previous completes. use it when the order of execution is important and inner observables have finite lifespans.
+
+- be careful if you have long running inner observables, as subswquent mapped observables could back up or never execute at all.
