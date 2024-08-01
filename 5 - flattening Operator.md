@@ -143,6 +143,49 @@
     .subscribe(console.log);
   ```
 
+  ```html
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+      <link rel="stylesheet" href="./style.css" />
+    </head>
+    <body>
+      <input type="text" id="ipt-1" placeholder="type your text" />
+      <input type="text" id="ipt-2" placeholder="type your text" /> <br />
+      <p class="entered-text"></p>
+      <script src="./script.js"></script>
+    </body>
+  </html>
+  ```
+
+  ```js
+  import { fromEvent, map, mergeMap, debounceTime, pluck } from "rxjs";
+
+  const input1 = document.querySelector("#ipt-1");
+  const input2 = document.querySelector("#ipt-2");
+  const enteredText = document.querySelector(".entered-text");
+
+  const source1$ = fromEvent(input1, "keyup").pipe(debounceTime(200));
+  const source2$ = fromEvent(input2, "keyup").pipe(debounceTime(200));
+
+  source1$
+    .pipe(
+      pluck("target", "value"),
+      mergeMap((val1) => {
+        return source2$.pipe(
+          pluck("target", "value"),
+          map((val2) => ({ val1, val2 }))
+        );
+      })
+    )
+    .subscribe((value) => {
+      enteredText.innerText = `${value.val1} ${value.val2}`;
+    });
+  ```
+
 - a particular use case would be http requests - particularly saves
 
 - In summary, `mergeMap` maps values to a new observable on emissions from source, subscribing to and emitting results of inner observable. By default, `mergeMap` doesn't limit the number of active inner observables.
