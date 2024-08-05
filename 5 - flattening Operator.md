@@ -293,3 +293,27 @@ source$.subscribe(concatMap(interval$)).subscribe(console.log);
 - to sum it up, `concatMap` maintains one active inner subscription, activates the next observable when previous completes. use it when the order of execution is important and inner observables have finite lifespans.
 
 - be careful if you have long running inner observables, as subswquent mapped observables could back up or never execute at all.
+
+# exhaustMap
+
+- like `switchMap` and `concatMap`, `exhaustMap` only maintains one inner subscription at a time. the difference lies how it handles new values being emitted
+  when an inner subscription is already active - where `switchMap` switches to the new mapped observable whereas `concatMap` queues it, `exhaustMap` throws it away.
+
+![exhaust-map-diagram](image-10.png)
+
+- in the above example (and below), till the inner interval emits 3 values, any other source emissions will be ignored (clicks in this case)
+
+  ```js
+  import { fromEvent, exhaustMap, take, interval } from "rxjs";
+
+  const source$ = fromEvent(document, "click");
+  const interval$ = interval(1000);
+
+  source$
+    .pipe(exhaustMap(() => interval$.pipe(take(3))))
+    .subscribe(console.log);
+  ```
+
+- one use case would be when you have an action that can be spammed and it's not productive to initiate multiple inner observables, for eg. a login form
+
+- avoid using this operator if cancellation is important or ignoring emissions from the source would cause undesired effects (like on saves)
