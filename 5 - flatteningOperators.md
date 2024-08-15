@@ -317,3 +317,9 @@ source$.subscribe(concatMap(interval$)).subscribe(console.log);
 - one use case would be when you have an action that can be spammed and it's not productive to initiate multiple inner observables, for eg. a login form
 
 - avoid using this operator if cancellation is important or ignoring emissions from the source would cause undesired effects (like on saves)
+
+# catchError
+
+- the `catchError` operator catches error in an observable source either throwing an error or returning a new observable. catching an error completes the observable so be catious where you place your `catchError` operator depending on the usecase.
+
+  ![catch-error-diagram](image-11.png)
