@@ -51,7 +51,6 @@
       countdown.innerText = val;
       if (!val) {
         message.innerText = "Takeoff";
-        return;
       }
     });
   ```
@@ -80,3 +79,111 @@
   ![concat-diagram](image-13.png)
 
 # merge
+
+- `merge` creates an observable from a variable number of other observbales that you supply and on subscription, merge subscribes to all inner observables at once emitting all values emitted by these observables as they occur
+
+  ![merge-diagram](image-14.png)
+
+  ```js
+  import { fromEvent, merge } from "rxjs";
+
+  const keyUp$ = fromEvent(document, "keyup");
+  const click$ = fromEvent(document, "click");
+
+  // keyUp$.subscribe(console.log)
+  // click$.subscribe(console.log)
+
+  merge(keyUp$, click$).subscribe(console.log);
+  ```
+
+  ```js
+  import {
+    fromEvent,
+    scan,
+    interval,
+    merge,
+    map,
+    startWith,
+    switchMap,
+    takeWhile,
+  } from "rxjs";
+  import { EMPTY } from "rxjs";
+
+  const startBtn = document.querySelector(".start");
+  const stopBtn = document.querySelector(".stop");
+  const countdown = document.getElementById("timer");
+  const message = document.querySelector(".message");
+
+  const START_VAL = 10;
+
+  const interval$ = interval(1000);
+  const start$ = fromEvent(startBtn, "click");
+  const stop$ = fromEvent(stopBtn, "click");
+
+  merge(start$.pipe(map(() => true)), stop$.pipe(map(() => false)))
+    .pipe(
+      switchMap((val) => (val ? interval$ : EMPTY)),
+      map(() => -1),
+      scan((acc, nxt) => {
+        return acc + nxt;
+      }, START_VAL),
+      takeWhile((val) => val >= 0),
+      startWith(START_VAL)
+    )
+    .subscribe((val) => {
+      countdown.innerText = val;
+      if (!val) {
+        message.innerText = "Takeoff";
+      }
+    });
+  ```
+
+  ```html
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+    </head>
+    <body>
+      <h2 id="timer"></h2>
+      <button class="start">Start</button>
+      <button class="stop">Stop</button>
+      <div class="message"></div>
+      <script type="module" src="./script.js"></script>
+    </body>
+  </html>
+  ```
+
+# combineLatest
+
+- the `combineLatest` operator creates an observable from a variable number of other observables that are supplied. on subscription, `combineLatest` will subscribe to all inner obervables after all inner obervables have emitted atleast one value, `combineLatest` will emit the last value emitted from each inner obervable as an array on any emissions.
+
+  ![combine-latest-diagram](image-15.png)
+
+  ```js (combining input values ot two input elements)
+  import { combineLatest, fromEvent } from "rxjs";
+  import { map, filter } from "rxjs/operators";
+
+  const ipt1 = document.querySelector("#ipt-1");
+  const ipt2 = document.querySelector("#ipt-2");
+  const results = document.querySelector(".results");
+
+  const input1$ = fromEvent(ipt1, "keyup");
+  const input2$ = fromEvent(ipt2, "keyup");
+
+  // helpers
+  const keyUpAsValue = (elem) => {
+    return fromEvent(elem, "keyup").pipe(map((event) => event.target.value));
+  };
+
+  combineLatest(keyUpAsValue(ipt1), keyUpAsValue(ipt2))
+    .pipe(
+      filter(([val1, val2]) => val1.length && val2.length),
+      map(([val1, val2]) => val1 + " " + val2)
+    )
+    .subscribe((val) => (results.innerText = val));
+  ```
+
+# withLatestFrom
