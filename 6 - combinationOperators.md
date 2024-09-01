@@ -97,8 +97,6 @@
     .subscribe(console.log);
   ```
 
-````
-
 # merge
 
 - `merge` creates an observable from a variable number of other observbales that you supply and on subscription, merge subscribes to all inner observables at once emitting all values emitted by these observables as they occur
@@ -115,49 +113,49 @@
   // click$.subscribe(console.log)
 
   merge(keyUp$, click$).subscribe(console.log);
-````
+  ```
 
-```js
-import {
-  fromEvent,
-  scan,
-  interval,
-  merge,
-  map,
-  startWith,
-  switchMap,
-  takeWhile,
-} from "rxjs";
-import { EMPTY } from "rxjs";
+  ```js
+  import {
+    fromEvent,
+    scan,
+    interval,
+    merge,
+    map,
+    startWith,
+    switchMap,
+    takeWhile,
+  } from "rxjs";
+  import { EMPTY } from "rxjs";
 
-const startBtn = document.querySelector(".start");
-const stopBtn = document.querySelector(".stop");
-const countdown = document.getElementById("timer");
-const message = document.querySelector(".message");
+  const startBtn = document.querySelector(".start");
+  const stopBtn = document.querySelector(".stop");
+  const countdown = document.getElementById("timer");
+  const message = document.querySelector(".message");
 
-const START_VAL = 10;
+  const START_VAL = 10;
 
-const interval$ = interval(1000);
-const start$ = fromEvent(startBtn, "click");
-const stop$ = fromEvent(stopBtn, "click");
+  const interval$ = interval(1000);
+  const start$ = fromEvent(startBtn, "click");
+  const stop$ = fromEvent(stopBtn, "click");
 
-merge(start$.pipe(map(() => true)), stop$.pipe(map(() => false)))
-  .pipe(
-    switchMap((val) => (val ? interval$ : EMPTY)),
-    map(() => -1),
-    scan((acc, nxt) => {
-      return acc + nxt;
-    }, START_VAL),
-    takeWhile((val) => val >= 0),
-    startWith(START_VAL)
-  )
-  .subscribe((val) => {
-    countdown.innerText = val;
-    if (!val) {
-      message.innerText = "Takeoff";
-    }
-  });
-```
+  merge(start$.pipe(map(() => true)), stop$.pipe(map(() => false)))
+    .pipe(
+      switchMap((val) => (val ? interval$ : EMPTY)),
+      map(() => -1),
+      scan((acc, nxt) => {
+        return acc + nxt;
+      }, START_VAL),
+      takeWhile((val) => val >= 0),
+      startWith(START_VAL)
+    )
+    .subscribe((val) => {
+      countdown.innerText = val;
+      if (!val) {
+        message.innerText = "Takeoff";
+      }
+    });
+  ```
 
 ```html
 <!DOCTYPE html>
@@ -282,4 +280,8 @@ Both operators are valuable tools in RxJS for combining Observables, but choosin
   forkJoin({ numbers: num$, letters: letter$ }).subscribe(console.log); // {numbers: 3, letters: "c"}
   ```
 
-- in the above example, `forkJoin` waits for the letter$ observable to complete after which it emits the latest value from both the source and inner observable. also you can pass the observables as an object to `forkJoin`
+- in the above example, `forkJoin` waits for the letter$ observable to complete after which it emits the latest value from both the source and inner observable. also you can pass the observables as an object to `forkJoin`.
+
+```
+
+```
