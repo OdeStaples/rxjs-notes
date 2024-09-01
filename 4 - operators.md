@@ -67,6 +67,8 @@
   }
   ```
 
+  ![take-diagram](image-23.png)
+
   - in the above example, we convert the `fibonacci` function into an observable using `from` operator and then we use `pipe` to transform the data and `take` operator to take 10 values.
 
 # Skip Operator
@@ -85,14 +87,16 @@
 
 - takeWhile also has a second argument (boolean) that emits the value which completes the observable. By default it is `false`
 
-  ```ts
-  const under200$ = from(fibonacci()).pipe(takeWhile(value)=>value<200);
-  under200$.subscribe((val)=>console.log(val)); // logs 0,1,2,3,5,8,13,21,34,55,89,144
-  under200$.subscribe((val)=>console.log(val), true); // logs 0,1,2,3,5,8,13,21,34,55,89,144,233
+![takeWhile-diagram](image-24.png)
 
-  const over100$ = from(fibonacci()).pipe(skipWhile(value)=>value<100);
-  over100$.subscribe((val)=>console.log(val)); // logs 144, 233, 377, 610
-  ```
+```ts
+const under200$ = from(fibonacci()).pipe(takeWhile(value)=>value<200);
+under200$.subscribe((val)=>console.log(val)); // logs 0,1,2,3,5,8,13,21,34,55,89,144
+under200$.subscribe((val)=>console.log(val), true); // logs 0,1,2,3,5,8,13,21,34,55,89,144,233
+
+const over100$ = from(fibonacci()).pipe(skipWhile(value)=>value<100);
+over100$.subscribe((val)=>console.log(val)); // logs 144, 233, 377, 610
+```
 
 # This code will not print any values. Why?
 
@@ -150,6 +154,8 @@ example$.subscribe(function generateSequence(value) {
   }
   ```
 
+  ![takeUntil-diagram](image-25.png)
+
 - In this example, `getDataStream()` returns an observable that emits data. The `takeUntil` operator is used with a `Subject` (`destroy$`) that emits a value when the component is destroyed (`ngOnDestroy`). This effectively unsubscribes from `getDataStream()` when the component is no longer needed, preventing memory leaks.
 
 # skipUntil
@@ -179,6 +185,8 @@ example$.subscribe(function generateSequence(value) {
   evenNum$.subscribe((val) => console.log(val)); // logs 2,4,6,8
   ```
 
+  ![filter-diagram](image-19.png)
+
 # map
 
 - works just like it does on arrays
@@ -187,6 +195,8 @@ example$.subscribe(function generateSequence(value) {
   mapExample$ = of(1, 2, 3).pipe(map((num) => num * 2));
   mapExample$.subscribe((val) => console.log(val)); // logs 2,4,6
   ```
+
+  ![map-diagram](image-18.png)
 
 # pluck
 
@@ -228,6 +238,8 @@ const sum$ = from(generateFibonacci()).pipe(
 );
 ```
 
+![reduce-diagram](image-20.png)
+
 - the `0` passed in the end is the initial value for the accumulator.
 - Check Frontend Masters javascript course for more.
 
@@ -254,6 +266,8 @@ const sum$ = from(generateFibonacci()).pipe(
   range$.subscribe((val) => console.log(val)); // logs 0,1,3,6
   ```
 
+  ![scan-diagram](image-21.png)
+
 # tap
 
 - useful for side-effects like DOM Manipulation and debugging.
@@ -274,6 +288,8 @@ observable$.pipe(
   })
 );
 ```
+
+![tap-diagram](image-22.png)
 
 ### Logging Authentication Status
 
@@ -406,7 +422,9 @@ buttonClicks$.subscribe(console.log);
 
 - You can keep clicking, but a new message will only show up every two seconds provided you keep on clicking the button
 
-- in the above example, the click will be registered on the first click and after ever 2secs another click will be registered.
+- in the above example, the click will be registered on the first click and after every 2secs another click will be registered.
+
+![throttleTime-diagram](image-29.png)
 
 # debounceTime
 
@@ -419,6 +437,8 @@ buttonClicks$.subscribe(console.log);
   ```
 
 - in the above example, the repeated clicks till the las click will be ignored, then after the final(last) click is done, after a 1sec delay the logic will be invoked.
+
+![debounceTime-diagram](image-28.png)
 
 ![debouneTime v throttleTime](image.png)
 
@@ -444,6 +464,8 @@ buttonClicks$.subscribe(console.log);
   result.subscribe(console.log);
   ```
 
+  ![sampleTime-diagram](image-30.png)
+
 - in the above example, every 4 seconds, we’ll sample the latest click event that occurred during that time window.
 
 - if you need to sample a latest value based on another observable, you can use sample
@@ -458,6 +480,8 @@ buttonClicks$.subscribe(console.log);
   ```
 
 ![Sample-Time-Digram](image-1.png)
+
+![sample-diagram](image-31.png)
 
 ![sampleTime vs throttleTime vs debounceTime](image-2.png)
 
@@ -565,6 +589,8 @@ buttonClicks$.subscribe(console.log);
   const source$ = of(1, "1", 2, 2, 3, 3, 3, 4, 5, 3);
   source$.pipe(distinctUntilChanged()).subscibe((val) => console.log); // 1 1 2 3 4 5 3
   ```
+
+  ![distinctUntilChanged-diagram](image-26.png)
 
 - in the above example, the string 1 is different than the previous emission (numeric 1) hence it is emitted. And 3 is different than 5 (previous emission wrt to 3) hence 3 is also printed.
 
